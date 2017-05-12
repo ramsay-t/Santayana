@@ -60,28 +60,14 @@ defmodule Santayana.DataImport do
 	end
 	defp align(ls) do
 		t = latest(ls)
-		{hds,tails} = List.foldl(ls, 
-														 {[],[]}, 
-														 fn(l,{ha,ta}) ->
-																 case fast_forward(l,t) do
-																	 [] ->
-																		 {ha ++ [nil],ta ++ [[]]}
-																	 [lh | lt] ->
-																		 {ha ++ [lh],ta ++ [lt]}
-																 end
-														 end)
-		tails = if Enum.any?(tails,fn(t) -> t == [] end) do
-							Enum.map(tails,fn(_) -> [] end)
-						else
-							align(tails)
-						end
-		Enum.map(Enum.zip(hds,tails), 
-									fn({lh,lt}) ->
-											case lh do
-												nil -> lt
-												_ ->[lh | lt]
-											end
-									end)
+		ff = fast_forward_fixpoint(t,ls)
+		if Enum.any?(ff, fn(f) -> f == [] end) do
+			[]
+		else
+			h = {elem(hd(hd(ff)),0),Enum.map(ff,fn(f) -> elem(hd(f),1) end)}
+			t = align(Enum.map(ff,&Kernel.tl(&1)))
+			[h | t]
+		end
 	end
 
 	# This is meaningless for an empty list...
@@ -116,6 +102,19 @@ defmodule Santayana.DataImport do
 			fast_forward(ls,target)
 		else
 			[l|ls]
+		end
+	end
+
+	defp fast_forward_fixpoint(latest,ls) do
+		if Enum.any?(ls, fn(f) -> f == [] end) do
+			ls
+		else
+			newlatest = latest(ls)
+			if Timex.compare(newlatest,latest) == 0 do
+				ls
+			else
+				fast_forward_fixpoint(newlatest,Enum.map(ls,&fast_forward(&1,newlatest)))
+			end
 		end
 	end
 

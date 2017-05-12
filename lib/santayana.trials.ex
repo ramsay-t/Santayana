@@ -1,7 +1,7 @@
 defmodule Santayana.Trials do
 	require Logger
 	@moduledoc """
-  The Trials module contains functions for executing trials of constant sets against historical value sets.
+  The Trials module contains functions for executing trials of constant sets against historical value sets using Newton's law of cooling.
   """
 
   # The predictor step takes an anterior value, a list of constants, a list of input values, and produces a posterior value.
@@ -27,6 +27,5 @@ defmodule Santayana.Trials do
 		Enum.reverse(ts)
 	end
 
-	
 
 end
