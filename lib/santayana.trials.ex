@@ -27,5 +27,23 @@ defmodule Santayana.Trials do
 		Enum.reverse(ts)
 	end
 
+	@doc """
+  Compute the list of percentage errors between the first list and the second.
+  """
+	@spec errors([number],[number]) :: [number]
+	def errors(results,expected) do
+		Enum.map(Enum.zip(results,expected), 
+									fn({r,rr}) -> 
+											abs(abs(rr - r)/r * 100)
+									end)
+	end
+
+	@doc """
+  Compute the average error between the predicted and actual values.
+  """
+	def ave_error(results,expected) do
+		ee = errors(results,expected)
+		Enum.sum(ee) / length(ee)
+	end
 
 end

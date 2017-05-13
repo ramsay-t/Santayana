@@ -40,12 +40,10 @@ defmodule SantayanaTest.TrialsTest do
 		data = dataset()
 		# hd(data) is the room temp, the other two are Atrium temps
 		res = Trials.predictor(hd(hd(data)),[0.01,0.1],Enum.map(tl(data), &tl(&1)))
-		errors = Enum.map(Enum.zip(res,Enum.map(tl(data),&hd(&1))), 
-													 fn({r,rr}) -> 
-															 IO.puts "#{inspect rr} vs #{inspect r} == #{abs(rr - r)/r * 100}%"
-															 abs(rr - r)/r * 100
-													 end)
+		expected = Enum.map(tl(data),&hd(&1))
+		errors = Trials.errors(res,expected)
 		assert Enum.all?(errors, fn(e) -> e < 10 end) 
+		assert Trials.ave_error(res, expected) < 10
 	end
 
 end
